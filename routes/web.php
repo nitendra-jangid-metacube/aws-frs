@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [AWSController::class, 'index']);
+Route::get('/login', [AWSController::class, 'login']);
