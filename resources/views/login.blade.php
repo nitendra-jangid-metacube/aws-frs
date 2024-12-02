@@ -1,18 +1,10 @@
 @extends('layouts.default')
 @section('content')
 <div class="login-form row">
-    <form action="" id="frs_form" onsubmit="return false;">
+    <form action="{{route('loginUser')}}" id="frs_form" onsubmit="return false;">
+        @csrf
         <div class="col-12">
             <!-- <h5 class="text-left">Login</h5> -->
-            <div class="row">
-                <div class="col-6 text-left">
-                    <div class="form-group">
-                        <label for="mobile">Enter mobile</label>
-                        <input type="text" class="input-field" placeholder="Mobile.." name="mobile"
-                            id="mobile">
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-12 col-md-6">
                     <div id="my_camera" class="border"></div>

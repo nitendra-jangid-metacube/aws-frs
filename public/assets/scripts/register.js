@@ -32,7 +32,17 @@ function register() {
             $('#prev_btn').removeAttr('disabled');
             $('#sub_btn').removeAttr('disabled');
             $('#sub_btn').html('Submit');
-            textObj = JSON.parse(text);
+            try{
+                textObj = JSON.parse(text);
+            } catch(e) {
+                $.toast({
+                    text: 'Something went wrong!!',
+                    icon: 'error',
+                    position: 'top-right',
+                    hideAfter: 5000
+                });
+                return;
+            }
             if (textObj.status) {
                 $.toast({
                     text: textObj.message,
@@ -40,7 +50,9 @@ function register() {
                     position: 'top-right',
                 });
                 if ($('#save_data').val() == 1) {
-                    location.href = 'login';
+                    window.setTimeout(function() {
+                        window.location.href = 'login';
+                    }, 2000);
                 } else {
                     document.getElementById('results').innerHTML =
                         '<img class="img-fluid" src="' + textObj.data.photo + '?var=' + (new Date().getTime()) + '" />';
