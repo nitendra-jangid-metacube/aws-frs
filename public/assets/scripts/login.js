@@ -6,30 +6,30 @@ Webcam.set({
 });
 Webcam.attach('#my_camera');
 
-function show_photo() {
+function login_show_photo() {
     $('#save_data').val(0);
-    return take_snapshot();
+    return login();
+}
+
+function login_submit_form() {
+    $('#save_data').val(1);
+    return login();
 }
 
 function login() {
-    $('#save_data').val(1);
-    return take_snapshot();
-}
-
-function take_snapshot() {
     if ($('#mobile').val() == '') {
         alert('Mobile is required');
         return;
     }
     // take snapshot and get image data
-    $('#show_photo_btn').attr('disabled', '');
+    $('#login_show_photo_btn').attr('disabled', '');
     $('#sub_btn').attr('disabled', '');
     $('#sub_btn').html('Please wait...');
     Webcam.snap(function(data_uri) {
         Webcam.upload(data_uri, 'login.php', function(code, text) {
             console.log(text);
 
-            $('#show_photo_btn').removeAttr('disabled');
+            $('#login_show_photo_btn').removeAttr('disabled');
             $('#sub_btn').removeAttr('disabled');
             $('#sub_btn').html('Submit');
             textObj = JSON.parse(text);

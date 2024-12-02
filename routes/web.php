@@ -14,5 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [AWSController::class, 'index']);
-Route::get('/login', [AWSController::class, 'login']);
+Route::get('/', [AWSController::class, 'index'])->name('register');
+Route::get('/login', [AWSController::class, 'login'])->name('login');
+Route::post('/register', [AWSController::class, 'register'])->name('registerUser');

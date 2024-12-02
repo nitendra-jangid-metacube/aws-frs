@@ -6,28 +6,29 @@ Webcam.set({
 });
 Webcam.attach('#my_camera');
 
-function show_photo() {
+function reg_show_photo() {
     $('#save_data').val(0);
-    return take_snapshot();
+    return register();
 }
 
-function submit_form() {
+function reg_submit_form() {
     $('#save_data').val(1);
-    return take_snapshot();
+    return register();
 }
 
-function take_snapshot() {
+function register() {
     
     // take snapshot and get image data
-    $('#show_photo_btn').attr('disabled', '');
+    $('#reg_show_photo_btn').attr('disabled', '');
     $('#prev_btn').attr('disabled', '');
     $('#sub_btn').attr('disabled', '');
     $('#sub_btn').html('Please wait...');
     Webcam.snap(function(data_uri) {
-        Webcam.upload(data_uri, 'register.php', function(code, text) {
+        let formUrl = $('#frs_form').attr('action');
+        Webcam.upload(data_uri, formUrl, function(code, text) {
             // console.log(text);
 
-            $('#show_photo_btn').removeAttr('disabled');
+            $('#reg_show_photo_btn').removeAttr('disabled');
             $('#prev_btn').removeAttr('disabled');
             $('#sub_btn').removeAttr('disabled');
             $('#sub_btn').html('Submit');
@@ -39,7 +40,7 @@ function take_snapshot() {
                     position: 'top-right',
                 });
                 if ($('#save_data').val() == 1) {
-                    location.href = 'login-page.php';
+                    location.href = 'login';
                 } else {
                     document.getElementById('results').innerHTML =
                         '<img class="img-fluid" src="' + textObj.data.photo + '?var=' + (new Date().getTime()) + '" />';

@@ -24,8 +24,8 @@
                 </div>
                 <div class="col-12 text-center mt-3">
                     <input type="hidden" name="save_data" id="save_data" value="1">
-                    <button type="button" id="show_photo_btn" class="btn btn-secondary" onClick="show_photo()">Show Photo</button>
-                    <button type="button" id="sub_btn" class="btn btn-success" onClick="login()">Submit</button>
+                    <button type="button" id="login_show_photo_btn" class="btn btn-secondary" onClick="login_show_photo()">Show Photo</button>
+                    <button type="button" id="sub_btn" class="btn btn-success" onClick="login_submit_form()">Submit</button>
                 </div>
             </div>
         </div>

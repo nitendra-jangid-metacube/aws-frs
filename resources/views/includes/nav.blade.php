@@ -7,10 +7,10 @@
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url('/')}}">Register</a>
+                    <a class="nav-link {{Route::is('register') ? 'active' : ''}}" href="{{url('/')}}">Register</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{url('login')}}">Login</a>
+                    <a class="nav-link {{Route::is('login') ? 'active' : ''}}" aria-current="page" href="{{url('login')}}">Login</a>
                 </li>
             </ul>
         </div>

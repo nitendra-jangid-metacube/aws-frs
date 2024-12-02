@@ -1,7 +1,8 @@
 @extends('layouts.default')
 @section('content')
 <div class="login-form">
-    <form action="" id="frs_form" onsubmit="return false;">
+    <form action="{{route('registerUser')}}" id="frs_form" onsubmit="return false;">
+        @csrf
         <div class="col-12">
             <div id="p-info">
                 <h5 class="text-left">Enter your details</h5>
@@ -46,9 +47,9 @@
                     </div>
                     <div class="col-12 text-center mt-3">
                         <input type="hidden" name="save_data" id="save_data" value="1">
-                        <button type="button" id="show_photo_btn" class="btn btn-secondary" onClick="show_photo()">Show Photo</button>
+                        <button type="button" id="reg_show_photo_btn" class="btn btn-secondary" onClick="reg_show_photo()">Show Photo</button>
                         <button type="button" id="prev_btn" class="btn btn-primary" onclick="return previous_step()">Previous</button>
-                        <button type="button" id="sub_btn" class="btn btn-success" onClick="submit_form()">Submit</button>
+                        <button type="button" id="sub_btn" class="btn btn-success" onClick="reg_submit_form()">Submit</button>
                     </div>
                 </div>
             </div>
