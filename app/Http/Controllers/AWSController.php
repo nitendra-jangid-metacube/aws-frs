@@ -9,6 +9,7 @@ use App\Models\FRSUser;
 use Aws\Rekognition\RekognitionClient;
 use Aws\Credentials\Credentials;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
@@ -97,7 +98,15 @@ class AWSController extends Controller
             ];
         }
 
-        $face = $this->indexFace($userId, public_path($photoPath));
+        try {
+            $face = $this->indexFace($userId, public_path($photoPath));
+        } catch(Exception $e) {
+            return [
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ];
+        }
 
         if(empty($face['FaceRecords'][0]['Face']['FaceId'])) {
             DB::rollBack();
@@ -161,7 +170,16 @@ class AWSController extends Controller
             ];
         }
 
-        $face = $this->searchFace($photoPath);
+        try {
+            $face = $this->searchFace($photoPath);
+        } catch(Exception $e) {
+            return [
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ];
+        }
+        
         if(empty($face['SearchedFaceConfidence']) || empty($face['FaceMatches']) || $face['SearchedFaceConfidence'] < 95) {
             return [
                 'status' => false,
