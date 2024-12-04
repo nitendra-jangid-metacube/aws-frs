@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\FRSUserFace;
 
 
 class FRSUser extends Model
@@ -15,20 +16,16 @@ class FRSUser extends Model
         'last_name',
         'mobile',
         'email',
-        'photo',
-        'img_token',
-        'face_plus_detect_response',
-        'last_search_response',
-        'last_search_confidence',
         'created_at',
-        'updated_at',
-        'face_id',
-        'image_id',
-        'aws_face_index_response',
+        'updated_at'
     ];
 
     protected $hidden = [];
 
     public $timestamps = TRUE;
+
+    public function face() {
+        return $this->hasMany(FRSUserFace::class,"user_id","id");
+    }
 
 }

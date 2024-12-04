@@ -56,6 +56,7 @@ function register() {
                 } else {
                     document.getElementById('results').innerHTML =
                         '<img class="img-fluid" src="' + textObj.data.photo + '?var=' + (new Date().getTime()) + '" />';
+                    $('#user-snaps-div').append('<img src="' + textObj.data.photo + '" class="img-thumbnail register-snaps" />')
                 }
             } else {
                 $.toast({

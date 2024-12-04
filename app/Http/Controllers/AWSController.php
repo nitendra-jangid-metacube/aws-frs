@@ -13,9 +13,12 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use App\Models\FRSUserFace;
 
 class AWSController extends Controller
 {
+    private $collectionId = 'meta-users';
     public function index() {
         return View::make('register');
     }
@@ -33,10 +36,10 @@ class AWSController extends Controller
         ));
     }
 
-    public function indexFace($userId, $imagePath) {
+    public function indexFaces($userId, $imagePath) {
         $imageId = 'user_' . str_pad($userId, 2, '0', STR_PAD_LEFT);
         $result = $this->createClient()->indexFaces([
-            'CollectionId' => 'meta-users',
+            'CollectionId' => $this->collectionId,
             'DetectionAttributes' => [
             ],
             'ExternalImageId' => $imageId,
@@ -66,10 +69,25 @@ class AWSController extends Controller
             ];
         }
 
-        $photoName = $request->mobile . '.' . $request->webcam->getClientOriginalExtension();
-        $request->webcam->move(public_path('uploads'), $photoName);
-        $photoPath = 'uploads/'.$photoName;
+        if(Session::has('user_photo') && !empty(Session::get('user_photo')) && count(Session::get('user_photo')) >= 5 && empty($request->save_data)) {
+            return [
+                'status' => false,
+                'message' => 'Max 5 snaps are allowed',
+                'data' => []
+            ];
+        }
+
         if(empty($request->save_data)) {
+            $photoName = rand(10,100) . '_' . bin2hex(random_bytes(2)) . '.' . $request->webcam->getClientOriginalExtension();
+            $request->webcam->move(public_path('uploads'), $photoName);
+            $photoPath = 'uploads/'.$photoName;
+
+            if(Session::has('user_photo')) {
+                Session::push('user_photo', $photoPath);
+            } else {
+                Session::put('user_photo', [$photoPath]);
+            }
+
             return [
                 'status' => true,
                 'message' => 'Snapped successfully',
@@ -78,6 +96,16 @@ class AWSController extends Controller
                 ]
             ];
         }
+        $userPhotos = Session::get('user_photo');
+        if(empty($userPhotos) || count($userPhotos) < 4) {
+            return [
+                'status' => false,
+                'message' => 'Min 4 snaps are required',
+                'data' => []
+            ];
+        }
+
+        Session::flush();
 
         DB::beginTransaction();
 
@@ -97,48 +125,52 @@ class AWSController extends Controller
                 'data' => []
             ];
         }
-
-        try {
-            $face = $this->indexFace($userId, public_path($photoPath));
-        } catch(Exception $e) {
-            return [
-                'status' => false,
-                'message' => $e->getMessage(),
-                'data' => []
+        $insertUserFaceArr = [];
+        foreach($userPhotos as $userPhoto) {
+            try {
+                $face = $this->indexFaces($userId, public_path($userPhoto));
+            } catch(Exception $e) {
+                return [
+                    'status' => false,
+                    'message' => $e->getMessage(),
+                    'data' => []
+                ];
+            }
+            if(empty($face['FaceRecords'][0]['Face']['FaceId']) || empty($face['FaceRecords'][0]['FaceDetail']['Confidence']) || $face['FaceRecords'][0]['FaceDetail']['Confidence'] < 90) {
+                DB::rollBack();
+                return [
+                    'status' => false,
+                    'message' => 'Face did not recognize!!',
+                    'data' => []
+                ];
+            }
+            $insertUserFaceArr[] = [
+                'user_id' => $userId,
+                'face_id' => $face['FaceRecords'][0]['Face']['FaceId'],
+                'image_id' => $face['FaceRecords'][0]['Face']['ImageId'],
+                'face_index_confidence' => $face['FaceRecords'][0]['FaceDetail']['Confidence'],
+                'aws_face_index_response' => json_encode((array) $face),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'photo' => $userPhoto
             ];
         }
-
-        if(empty($face['FaceRecords'][0]['Face']['FaceId'])) {
-            DB::rollBack();
-            return [
-                'status' => false,
-                'message' => 'Face did not recognize!!',
-                'data' => []
-            ];
-        }
-
-        $updateArr = [
-            'photo' => $photoPath,
-            'face_id' => $face['FaceRecords'][0]['Face']['FaceId'],
-            'image_id' => $face['FaceRecords'][0]['Face']['ImageId'],
-            'aws_face_index_response' => json_encode((array) $face),
-        ];
-        $update = FRSUser::where('id', $userId)->update($updateArr);
-        if(empty($update)) {
-            DB::rollBack();
-            return [
-                'status' => false,
-                'message' => 'User details cannot update!!',
-                'data' => []
-            ];
-        }
+        $insertUserFace = FRSUserFace::insert($insertUserFaceArr);
+            if(empty($insertUserFace)) {
+                DB::rollBack();
+                return [
+                    'status' => false,
+                    'message' => 'Cannot insert user face!!',
+                    'data' => []
+                ];
+            }
+        
         DB::commit();
 
         return [
             'status' => true,
             'message' => 'Registration successful',
             'data' => [
-                'photo' => $photoPath
+                'photo' => end($userPhotos)
             ]
         ];
     }
@@ -157,7 +189,7 @@ class AWSController extends Controller
             ];
         }
 
-        $photoName = $request->mobile . '-compare.' . $request->webcam->getClientOriginalExtension();
+        $photoName = rand(10,100) . '_' . bin2hex(random_bytes(2)) . '-compare.' . $request->webcam->getClientOriginalExtension();
         $request->webcam->move(public_path('uploads'), $photoName);
         $photoPath = 'uploads/'.$photoName;
         if(empty($request->save_data)) {
@@ -205,7 +237,9 @@ class AWSController extends Controller
             ];
         }
 
-        $user = FRSUser::where('face_id', $faceId)->get();
+        $user = FRSUser::whereHas('face', function($query) use ($faceId) {
+            return $query->where('face_id', $faceId);
+        })->get();
         if(empty($user->count())) {
             return [
                 'status' => false,
@@ -244,7 +278,7 @@ class AWSController extends Controller
     
     public function searchFace($imagePath) {
         $result = $this->createClient()->searchFacesByImage([
-            'CollectionId' => 'meta-users',
+            'CollectionId' => $this->collectionId,
             'FaceMatchThreshold' => 95,
             'Image' => [
                 'Bytes' => file_get_contents($imagePath),

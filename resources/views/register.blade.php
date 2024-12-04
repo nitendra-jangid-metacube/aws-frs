@@ -45,6 +45,13 @@
                             <img src="images/defaul-img.jpg" class="w-100 default-img">
                         </div>
                     </div>
+                    <div class="col-12" id="user-snaps-div">
+                        @if(!empty(session('user_photo')))
+                            @foreach(session('user_photo') as $photoPath)
+                                <img src="{{url($photoPath)}}" class="img-thumbnail register-snaps" />
+                            @endforeach
+                        @endif
+                    </div>
                     <div class="col-12 text-center mt-3">
                         <input type="hidden" name="save_data" id="save_data" value="1">
                         <button type="button" id="reg_show_photo_btn" class="btn btn-secondary" onClick="reg_show_photo()">Show Photo</button>

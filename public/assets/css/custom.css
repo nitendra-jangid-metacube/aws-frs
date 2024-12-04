@@ -74,6 +74,9 @@ body {
   .default-img {
     height: 350px;
   }  
+  .register-snaps {
+    width: 100px;
+  }
 
   @media screen and (max-width: 600px) {
     .login-container {
