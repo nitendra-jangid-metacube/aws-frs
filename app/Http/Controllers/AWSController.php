@@ -255,13 +255,19 @@ class AWSController extends Controller
         }
 
         $userDetails = $user->first();
-        Session::put('current_user', $userDetails->toArray());
+        $frsUserFace = FRSUserFace::where('face_id', $faceId)->first();
+        $currentUser = [
+            'first_name' => $userDetails->first_name,
+            'last_name' => $userDetails->last_name,
+            'photo' => $frsUserFace->photo,
+        ];
+        Session::put('current_user', $currentUser);
 
         $updateArr = [
+            'last_search_confidence' => $face['SearchedFaceConfidence'],
             'last_search_response' => json_encode((array) $face),
-            'last_search_confidence' => $face['SearchedFaceConfidence']
         ];
-        FRSUser::where('id', $userDetails->id)->update($updateArr);
+        FRSUserFace::where('id', $frsUserFace->id)->update($updateArr);
 
         return [
             'status' => true,
