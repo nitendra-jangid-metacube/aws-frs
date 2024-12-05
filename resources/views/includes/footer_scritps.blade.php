@@ -5,5 +5,10 @@
 <script type="text/javascript" src="{{asset('assets/scripts/webcam.js')}}"></script>
 <script type="text/javascript" src="{{asset('assets/scripts/register.js')}}"></script>
 <script type="text/javascript" src="{{asset('assets/scripts/login.js')}}"></script>
+<script>
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
 
 </html>

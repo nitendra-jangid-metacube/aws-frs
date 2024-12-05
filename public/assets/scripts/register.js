@@ -87,3 +87,40 @@ function previous_step() {
     $('#photo-info').addClass('d-none');
     $('#p-info').removeClass('d-none');
 }
+
+function removeSnap(e, photoPath) {
+    let url = $(e).attr('href');
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $(e).parent('.image-area').siblings('input').val()
+        },
+        type: 'POST',
+        url: url,
+        data: { path: photoPath },
+        success: function(data)
+        {
+            if(data.status) {
+                $.toast({
+                    text: data.message,
+                    icon: 'success',
+                    position: 'top-right'
+                });
+            } else {
+                $.toast({
+                    text: data.message,
+                    icon: 'error',
+                    position: 'top-right',
+                    hideAfter: 5000
+                });
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            $.toast({
+                text: thrownError,
+                icon: 'error',
+                position: 'top-right',
+            });
+        }
+    });
+    return false;
+}

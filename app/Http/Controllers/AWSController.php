@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\FRSUserFace;
 
+use function PHPUnit\Framework\isEmpty;
+
 class AWSController extends Controller
 {
     private $collectionId = 'meta-users';
@@ -24,6 +26,9 @@ class AWSController extends Controller
     }
 
     public function login() {
+        if(!empty(Session::get('current_user'))) {
+            return redirect(route('welcome'));
+        }
         return View::make('login');
     }
 
@@ -301,5 +306,36 @@ class AWSController extends Controller
             return redirect(route('login'));
         }
         return View::make('welcome');
+    }
+
+    public function removeSnap(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'path' => 'required'
+        ],[
+            'path.required' => 'Invalid request'
+        ]);
+        if ($validator->fails()) {
+            return [
+                'status' => false,
+                'message' => $validator->errors()->first(),
+                'data' => []
+            ];
+        }
+        $userPhotos = Session::get('user_photo');
+        if(!in_array($request->path, $userPhotos))  {
+            return [
+                'status' => false,
+                'message' => 'Invalid face',
+                'data' => []
+            ];
+        }
+        $key = array_search($request->path, $userPhotos);
+        unset($userPhotos[$key]);
+        Session::put('user_photo', $userPhotos);
+        return [
+            'status' => true,
+            'message' => 'Face removed successfully',
+            'data' => []
+        ];
     }
 }

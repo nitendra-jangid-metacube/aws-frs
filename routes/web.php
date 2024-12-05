@@ -19,3 +19,4 @@ Route::get('/login', [AWSController::class, 'login'])->name('login');
 Route::post('/register', [AWSController::class, 'register'])->name('registerUser');
 Route::post('/login-user', [AWSController::class, 'loginUser'])->name('loginUser');
 Route::get('/welcome', [AWSController::class, 'welcome'])->name('welcome');
+Route::post('/remove-snap', [AWSController::class, 'removeSnap'])->name('removeSnap');
